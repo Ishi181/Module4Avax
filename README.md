@@ -104,9 +104,25 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract DegenGamingToken is ERC20 {
 
+    mapping(uint => mapping(string => uint)) public items;
+    mapping(uint => string) public itemInfo;
+
+    mapping(address => string[]) public claimedItems;
+
     address private owner;
     constructor() ERC20("Degen Gaming Token", "DGT"){
         owner = msg.sender;
+        items[1]["Iphone"] = 120;
+        items[2]["Laptop"] = 60;
+        items[3]["Watch"] = 10;
+
+        itemInfo[1] = "Iphone";
+        itemInfo[2] = "Laptop";
+        itemInfo[3] = "Watch";
+    }
+
+    function getItems() external pure returns(string memory){
+        return "1. Iphone : 120 2. Laptop : 60 3. Watch : 10";
     }
 
     modifier onlyOwner{
@@ -118,10 +134,12 @@ contract DegenGamingToken is ERC20 {
         _mint(to, amount);
     }
 
-    function redeem(uint256 amount) external {
-        //_burn(msg.sender, amount);
-        require(balanceOf(msg.sender) >= amount, "Insufficient balance to redeem");
-        _transfer(msg.sender, owner, amount);
+    function redeem(uint _itemNo) external {
+        string memory itemName = itemInfo[_itemNo];
+        uint price = items[_itemNo][itemName];
+        require(balanceOf(msg.sender) >= price, "Insufficient balance to redeem");
+        _transfer(msg.sender, owner, price);
+        claimedItems[msg.sender].push(itemName);
        
     }
 
