@@ -40,11 +40,20 @@ address private owner;
 This declares a private state variable named owner of type address to store the owner's address.
 
 ```
-    constructor() ERC20("Degen Gaming Token", "DGT"){
-        owner = msg.sender;
-    }
+   constructor() ERC20("Degen Gaming Token", "DGT"){
+    owner = msg.sender;
+    items[1]["Iphone"] = 120;
+    items[2]["Laptop"] = 60;
+    items[3]["Watch"] = 10;
+    itemInfo[1] = "Iphone";
+    itemInfo[2] = "Laptop";
+    itemInfo[3] = "Watch";
+}
 ```
-This is the constructor function, which is executed only once when the contract is deployed. It calls the constructor of the ERC20 contract with the token name "Degen Gaming Token" and the symbol "DGT". It also sets the owner variable to the address that deployed the contract (msg.sender).
+Initializes the token with the name "Degen Gaming Token" and symbol "DGT".
+Sets the owner to the address that deploys the contract.
+Adds three items (Iphone, Laptop, Watch) with their corresponding prices in tokens.
+Stores the item names in itemInfo mapping.
 
 ```
     modifier onlyOwner{
@@ -55,6 +64,13 @@ This is the constructor function, which is executed only once when the contract 
 This defines a modifier named onlyOwner that checks if the caller (msg.sender) is the owner. If not, it throws an error "You are not the owner". The _ placeholder represents where the modified function's code will be executed.
 
 ```
+function getItems() external pure returns(string memory){
+    return "1. Iphone : 120 2. Laptop : 60 3. Watch : 10";
+}
+```
+A pure function that returns a string listing the available items and their prices.
+
+```
     function mint(address to, uint256 amount) external onlyOwner{
         _mint(to, amount);
     }
@@ -62,13 +78,16 @@ This defines a modifier named onlyOwner that checks if the caller (msg.sender) i
 This function allows the owner to mint new tokens. It takes two parameters: to (the address to receive the tokens) and amount (the number of tokens to mint). It uses the _mint function from the ERC20 contract. The onlyOwner modifier restricts its usage to the owner only.
 
 ```
-    function redeem(uint256 amount) external {
-        //_burn(msg.sender, amount);
-        require(balanceOf(msg.sender) >= amount, "Insufficient balance to redeem");
-        _transfer(msg.sender, owner, amount);
-    }
+    function redeem(uint _itemNo) external {
+    string memory itemName = itemInfo[_itemNo];
+    uint price = items[_itemNo][itemName];
+    require(balanceOf(msg.sender) >= price, "Insufficient balance to redeem");
+    _transfer(msg.sender, owner, price);
+    claimedItems[msg.sender].push(itemName);
+}
 ```
-This function allows a user to redeem tokens. It takes one parameter, amount (the number of tokens to redeem). It checks if the caller has enough balance and transfers the tokens from the caller to the owner. The _burn function is commented out, meaning it is not used.
+Allows users to redeem items by transferring the required amount of tokens to the owner.
+Updates the claimedItems mapping to record the claimed item.
 
 ```
     function burn(uint256 amount) external {
