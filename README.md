@@ -123,6 +123,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract DegenGamingToken is ERC20 {
 
+
     mapping(uint => mapping(string => uint)) public items;
     mapping(uint => string) public itemInfo;
 
